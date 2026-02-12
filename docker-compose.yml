@@ -1,0 +1,14 @@
+services:
+  workout-app:
+    build: .
+    container_name: workout-tracker
+    ports:
+      - "8080:5000"
+    volumes:
+      - workout-data:/app/data
+    environment:
+      - DATA_DIR=/app/data
+    restart: unless-stopped
+
+volumes:
+  workout-data:

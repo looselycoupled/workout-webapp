@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f1117">
+  <title>Workout Tracker</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>&#127947; Workout Tracker</h1>
+    </header>
+
+    <!-- Nav Tabs -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-view="view-dashboard">Exercises</button>
+      <button class="nav-tab" data-view="view-workout">Workout</button>
+      <button class="nav-tab" data-view="view-history">History</button>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="view-dashboard" class="view active">
+      <div style="margin-bottom: 16px;">
+        <button class="btn btn-primary btn-block btn-lg" onclick="showProgramSelect()">
+          Start Workout
+        </button>
+      </div>
+      <div id="dashboard-exercises"></div>
+    </div>
+
+    <!-- Workout View -->
+    <div id="view-workout" class="view">
+      <div id="workout-content">
+        <div class="empty-state">
+          <div class="icon">&#128170;</div>
+          <p>Ready to lift?</p>
+          <button class="btn btn-primary" style="margin-top:12px;" onclick="showProgramSelect()">Start Workout</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- History View -->
+    <div id="view-history" class="view">
+      <div class="section-header"><h2>Workout History</h2></div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <!-- Timer (fixed bottom bar) -->
+  <div class="timer-container">
+    <div class="timer-inner">
+      <div class="timer-mode-toggle">
+        <button class="timer-mode-btn active" data-mode="countdown">Countdown</button>
+        <button class="timer-mode-btn" data-mode="stopwatch">Stopwatch</button>
+      </div>
+      <div id="timer-display" class="timer-display">03:00</div>
+      <div class="timer-controls">
+        <button class="btn btn-ghost" onclick="resetTimer()">Reset</button>
+        <button id="timer-start-stop" class="btn btn-primary" onclick="toggleTimer()">Start</button>
+      </div>
+      <div class="timer-presets">
+        <button class="preset-btn" data-seconds="60">1:00</button>
+        <button class="preset-btn" data-seconds="90">1:30</button>
+        <button class="preset-btn" data-seconds="120">2:00</button>
+        <button class="preset-btn active" data-seconds="180">3:00</button>
+        <button class="preset-btn" data-seconds="300">5:00</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Modal -->
+  <div id="summary-modal" class="modal-overlay">
+    <div class="modal">
+      <h2>&#127881; Workout Complete!</h2>
+      <div id="summary-content"></div>
+      <button class="btn btn-primary btn-block" onclick="closeSummary()">Done</button>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

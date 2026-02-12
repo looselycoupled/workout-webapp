@@ -1,0 +1,295 @@
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface-hover: #242836;
+  --border: #2e3345;
+  --text: #e8eaf0;
+  --text-muted: #8b8fa3;
+  --primary: #6c8cff;
+  --primary-hover: #8ba4ff;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --accent: #a78bfa;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+html { font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== Layout ===== */
+.app { max-width: 480px; margin: 0 auto; padding: 0 16px 220px; }
+
+/* ===== Header ===== */
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 0; position: sticky; top: 0; z-index: 50;
+  background: var(--bg);
+}
+header h1 { font-size: 1.25rem; font-weight: 700; }
+.header-actions { display: flex; gap: 8px; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 18px; border: none; border-radius: var(--radius-sm);
+  font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: all 0.15s ease; white-space: nowrap;
+  font-family: inherit;
+}
+.btn:active { transform: scale(0.96); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-success { background: var(--success); color: #000; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-ghost {
+  background: transparent; color: var(--text-muted); border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
+.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+.btn-lg { padding: 14px 24px; font-size: 1.05rem; }
+.btn-icon {
+  width: 44px; height: 44px; padding: 0; border-radius: 50%;
+  font-size: 1.2rem;
+}
+.btn-block { width: 100%; }
+
+/* ===== Cards ===== */
+.card {
+  background: var(--surface); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 16px; margin-bottom: 12px;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-title { font-size: 1rem; font-weight: 600; }
+
+/* ===== Nav Tabs ===== */
+.nav-tabs {
+  display: flex; gap: 4px; padding: 4px;
+  background: var(--surface); border-radius: var(--radius);
+  margin-bottom: 20px; border: 1px solid var(--border);
+}
+.nav-tab {
+  flex: 1; padding: 10px; text-align: center; border: none;
+  background: transparent; color: var(--text-muted); font-size: 0.85rem;
+  font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;
+  transition: all 0.15s ease; font-family: inherit;
+}
+.nav-tab.active { background: var(--primary); color: #fff; }
+.nav-tab:not(.active):hover { color: var(--text); background: var(--surface-hover); }
+
+/* ===== View Sections ===== */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ===== Program Select ===== */
+.program-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.program-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 20px; cursor: pointer;
+  transition: all 0.15s ease;
+}
+.program-card:hover { border-color: var(--primary); background: var(--surface-hover); }
+.program-card.selected { border-color: var(--primary); background: rgba(108, 140, 255, 0.1); }
+.program-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+.program-card .exercises-preview {
+  color: var(--text-muted); font-size: 0.85rem;
+}
+
+/* ===== Exercise Cards (Dashboard) ===== */
+.exercise-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
+  transition: all 0.15s ease;
+}
+.exercise-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+.exercise-meta { color: var(--text-muted); font-size: 0.8rem; }
+.exercise-weight-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 10px;
+}
+.weight-display {
+  font-size: 1.8rem; font-weight: 800; color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+.weight-unit { font-size: 0.9rem; font-weight: 400; color: var(--text-muted); }
+.weight-controls { display: flex; gap: 8px; align-items: center; }
+.weight-controls .btn-icon {
+  background: var(--surface-hover); color: var(--text); border: 1px solid var(--border);
+  font-size: 1.3rem; width: 40px; height: 40px;
+}
+.weight-controls .btn-icon:active { background: var(--primary); border-color: var(--primary); }
+
+/* warmup info */
+.warmup-info {
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+  display: flex; gap: 16px; font-size: 0.8rem; color: var(--text-muted);
+}
+.warmup-label { font-weight: 600; }
+
+/* ===== Active Workout ===== */
+.workout-exercise {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+}
+.workout-exercise.current { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+.workout-exercise.done { opacity: 0.5; }
+.workout-exercise .exercise-name { font-size: 1.1rem; }
+.sets-tracker { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.set-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 2px solid var(--border); background: transparent;
+  color: var(--text); font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s ease; font-family: inherit;
+}
+.set-btn.completed { background: var(--success); border-color: var(--success); color: #000; }
+.set-btn.active { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(108,140,255,0.3); }
+
+/* ===== Timer ===== */
+.timer-container {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+  display: none;
+}
+.timer-container.visible { display: block; }
+.timer-inner { max-width: 480px; margin: 0 auto; }
+.timer-mode-toggle {
+  display: flex; gap: 4px; margin-bottom: 8px;
+  background: var(--bg); border-radius: var(--radius-sm); padding: 3px;
+}
+.timer-mode-btn {
+  flex: 1; padding: 6px; border: none; background: transparent;
+  color: var(--text-muted); font-size: 0.75rem; font-weight: 600;
+  border-radius: 6px; cursor: pointer; font-family: inherit;
+}
+.timer-mode-btn.active { background: var(--surface-hover); color: var(--text); }
+.timer-display {
+  text-align: center; font-size: 2.8rem; font-weight: 800;
+  font-variant-numeric: tabular-nums; padding: 4px 0;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+.timer-display.alert { color: var(--success); animation: pulse 0.5s ease infinite alternate; }
+.timer-display.overtime { color: var(--danger); animation: overtime-pulse 1s ease infinite alternate; }
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+@keyframes overtime-pulse { from { opacity: 1; } to { opacity: 0.6; } }
+.timer-controls { display: flex; gap: 8px; }
+.timer-controls .btn { flex: 1; }
+.timer-presets {
+  display: flex; gap: 6px; margin-top: 8px; justify-content: center; flex-wrap: wrap;
+}
+.preset-btn {
+  padding: 4px 12px; border: 1px solid var(--border); background: transparent;
+  color: var(--text-muted); font-size: 0.75rem; border-radius: 20px;
+  cursor: pointer; font-family: inherit; transition: all 0.15s ease;
+}
+.preset-btn:hover, .preset-btn.active {
+  border-color: var(--primary); color: var(--primary); background: rgba(108,140,255,0.1);
+}
+
+/* ===== History ===== */
+.history-entry {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+}
+.history-date { font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+.history-exercises { font-size: 0.85rem; color: var(--text-muted); }
+.history-exercises table { width: 100%; border-collapse: collapse; }
+.history-exercises td { padding: 3px 0; }
+.history-exercises td:first-child { color: var(--text); font-weight: 500; }
+.history-exercises td:last-child { text-align: right; color: var(--primary); font-weight: 600; }
+.history-notes { margin-top: 8px; font-size: 0.8rem; color: var(--accent); font-style: italic; }
+.history-duration { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+.empty-state {
+  text-align: center; padding: 40px 20px; color: var(--text-muted);
+}
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+/* ===== Section Headers ===== */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-header h2 { font-size: 1.1rem; font-weight: 700; }
+
+/* ===== Workout Summary Modal ===== */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7); display: none;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.visible { display: flex; }
+.modal {
+  background: var(--surface); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 24px;
+  max-width: 400px; width: 100%; max-height: 80dvh; overflow-y: auto;
+}
+.modal h2 { font-size: 1.2rem; margin-bottom: 16px; }
+.modal .btn { margin-top: 12px; }
+
+/* ===== Barbell Plate Diagram ===== */
+.barbell-diagram {
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 10px; padding: 6px 0; overflow: hidden;
+}
+.barbell-empty {
+  font-size: 0.75rem; color: var(--text-muted); text-align: center;
+  padding: 4px 0;
+}
+.barbell-plates {
+  display: flex; align-items: center; gap: 2px;
+}
+.barbell-left { flex-direction: row; }
+.barbell-right { flex-direction: row; }
+.plate {
+  width: 14px; border-radius: 3px; display: flex;
+  align-items: center; justify-content: center;
+  position: relative; min-height: 14px;
+}
+.plate-label {
+  font-size: 0.5rem; font-weight: 700; color: rgba(0,0,0,0.7);
+  writing-mode: vertical-rl; text-orientation: mixed;
+  line-height: 1;
+}
+.plate[style*="height:14px"] .plate-label,
+.plate[style*="height:18px"] .plate-label {
+  font-size: 0.45rem;
+}
+.barbell-bar {
+  width: 50px; height: 8px; background: #71717a;
+  border-radius: 1px; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0;
+}
+.bar-label {
+  font-size: 0.5rem; font-weight: 700; color: #27272a;
+  line-height: 1;
+}
+.barbell-collar-left, .barbell-collar-right {
+  width: 6px; height: 14px; background: #52525b;
+  border-radius: 1px; flex-shrink: 0;
+}
+.plate-summary {
+  text-align: center; font-size: 0.7rem; color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 360px) {
+  .weight-display { font-size: 1.4rem; }
+  .timer-display { font-size: 2.2rem; }
+}
