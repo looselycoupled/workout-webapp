@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#0f1117">
   <title>Workout Tracker</title>
   <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
   <div class="app">
@@ -45,6 +46,8 @@
     <!-- History View -->
     <div id="view-history" class="view">
       <div class="section-header"><h2>Workout History</h2></div>
+      <div id="history-charts"></div>
+      <div id="history-prs"></div>
       <div id="history-list"></div>
     </div>
   </div>

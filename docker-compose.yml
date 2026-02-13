@@ -5,10 +5,7 @@ services:
     ports:
       - "8080:5000"
     volumes:
-      - workout-data:/app/data
+      - ./data:/app/data
     environment:
       - DATA_DIR=/app/data
     restart: unless-stopped
-
-volumes:
-  workout-data:

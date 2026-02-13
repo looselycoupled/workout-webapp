@@ -223,7 +223,7 @@ async function finishWorkout() {
   if (!activeWorkout) return;
   const duration = Math.floor((Date.now() - activeWorkout.startTime) / 1000);
   const entry = {
-    date: new Date().toISOString().split("T")[0],
+    date: new Date().toLocaleDateString("en-CA"),
     program: activeWorkout.programName,
     duration_seconds: duration,
     exercises: activeWorkout.exercises.map((ex) => ({
@@ -448,9 +448,15 @@ function playAlert() {
 }
 
 // ===== History =====
+let historyCharts = [];
+
 function renderHistory() {
   const container = document.getElementById("history-list");
   const history = appData.history || [];
+
+  renderHistoryCharts(history);
+
+  renderPRs(history);
 
   if (history.length === 0) {
     container.innerHTML = `
@@ -486,6 +492,280 @@ function renderHistory() {
     )
     .join("");
 }
+
+function renderPRs(history) {
+  const prContainer = document.getElementById("history-prs");
+  if (!prContainer) return;
+  if (!history || history.length === 0) {
+    prContainer.innerHTML = "";
+    return;
+  }
+
+  const currentExercises = Object.keys(appData.exercises || {});
+  const prs = {};
+  currentExercises.forEach((name) => (prs[name] = { weight: 0, date: "" }));
+
+  history.forEach((entry) => {
+    (entry.exercises || []).forEach((ex) => {
+      if (prs[ex.name] !== undefined && ex.weight > prs[ex.name].weight) {
+        prs[ex.name] = { weight: ex.weight, date: entry.date };
+      }
+    });
+  });
+
+  prContainer.innerHTML = `
+    <div class="pr-card">
+      <h3>Personal Records</h3>
+      <div class="pr-list">
+        ${currentExercises
+          .map((name) => {
+            const pr = prs[name];
+            if (!pr || pr.weight === 0) return "";
+            return `<div class="pr-item">
+              <span class="pr-name">${name}</span>
+              <span class="pr-value">${pr.weight} lbs</span>
+              <span class="pr-date">${formatDate(pr.date)}</span>
+            </div>`;
+          })
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
+// ===== History Charts =====
+const CHART_COLORS = ["#6c8cff", "#4ade80", "#fbbf24", "#f87171", "#a78bfa", "#38bdf8", "#fb923c", "#e879f9"];
+
+function renderHistoryCharts(history) {
+  const chartsContainer = document.getElementById("history-charts");
+
+  // Destroy previous chart instances
+  historyCharts.forEach((c) => c.destroy());
+  historyCharts = [];
+
+  if (!history || history.length === 0) {
+    chartsContainer.innerHTML = "";
+    return;
+  }
+
+  // Sort history oldest-first for charting
+  const sorted = [...history].reverse();
+
+  chartsContainer.innerHTML = `
+    <div class="chart-card"><h3>Weight Progression</h3><canvas id="chart-weight"></canvas></div>
+    <div class="chart-card"><h3>Workout Frequency</h3><div id="chart-heatmap" class="heatmap-container"></div></div>
+    <div class="chart-card"><h3>Volume per Session</h3><canvas id="chart-volume"></canvas></div>
+  `;
+
+  const gridColor = "#2e3345";
+  const textColor = "#8b8fa3";
+  const defaultScaleOpts = {
+    grid: { color: gridColor },
+    ticks: { color: textColor, font: { size: 11 } },
+  };
+
+  // --- Weight Progression (line chart) ---
+  const currentExercises = Object.keys(appData.exercises || {});
+  const exerciseNames = currentExercises;
+  const dates = sorted.map((w) => w.date);
+  const datasets = exerciseNames.map((name, i) => ({
+    label: name,
+    data: sorted.map((w) => {
+      const ex = (w.exercises || []).find((e) => e.name === name);
+      return ex ? ex.weight : null;
+    }),
+    borderColor: CHART_COLORS[i % CHART_COLORS.length],
+    backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+    tension: 0.3,
+    spanGaps: true,
+    pointRadius: 3,
+  }));
+
+  historyCharts.push(
+    new Chart(document.getElementById("chart-weight"), {
+      type: "line",
+      data: { labels: dates, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: textColor, boxWidth: 12, font: { size: 11 } } },
+        },
+        scales: {
+          x: { ...defaultScaleOpts },
+          y: { ...defaultScaleOpts, title: { display: true, text: "lbs", color: textColor } },
+        },
+      },
+    })
+  );
+
+  // --- Shared: build a map of workout dates to workout data ---
+  const workoutsByDate = {};
+  sorted.forEach((w) => {
+    if (!workoutsByDate[w.date]) workoutsByDate[w.date] = [];
+    workoutsByDate[w.date].push(w);
+  });
+
+  renderCalendarHeatmap(workoutsByDate);
+
+  // --- Volume per Session (bar chart, total weight × sets × reps) ---
+  const volumeDates = sorted.map((w) => w.date);
+  const volumes = sorted.map((w) =>
+    (w.exercises || []).reduce((sum, ex) => sum + ex.weight * ex.sets * ex.reps, 0)
+  );
+
+  historyCharts.push(
+    new Chart(document.getElementById("chart-volume"), {
+      type: "bar",
+      data: {
+        labels: volumeDates,
+        datasets: [
+          {
+            label: "Volume (lbs)",
+            data: volumes,
+            backgroundColor: "#6c8cff",
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+        },
+        scales: {
+          x: { ...defaultScaleOpts },
+          y: {
+            ...defaultScaleOpts,
+            beginAtZero: true,
+            title: { display: true, text: "Total Volume (lbs)", color: textColor },
+          },
+        },
+      },
+    })
+  );
+}
+
+// ===== Frequency Chart Helpers =====
+
+function renderCalendarHeatmap(workoutsByDate) {
+  const container = document.getElementById("chart-heatmap");
+  // Show last 16 weeks, ending at today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayDay = today.getDay(); // 0=Sun
+  // Start on a Sunday, 16 weeks back from the current week's Sunday
+  const startDay = new Date(today);
+  startDay.setDate(today.getDate() - todayDay - (15 * 7));
+
+  const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // Pre-compute weeks so we can build month labels
+  const weeks = [];
+  const cursor = new Date(startDay);
+  while (cursor <= today) {
+    const cells = [];
+    for (let d = 0; d < 7; d++) {
+      if (cursor > today) break;
+      cells.push(new Date(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    weeks.push(cells);
+  }
+
+  // Build month labels: show label on the first week whose Sunday falls in a new month
+  const monthLabels = [];
+  let lastMonth = -1;
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  weeks.forEach((cells) => {
+    const m = cells[0].getMonth();
+    if (m !== lastMonth) {
+      monthLabels.push(monthNames[m]);
+      lastMonth = m;
+    } else {
+      monthLabels.push("");
+    }
+  });
+
+  let html = '<div class="heatmap-grid">';
+
+  // Month header row
+  html += '<div class="heatmap-month-row">';
+  html += '<div class="heatmap-label"></div>'; // spacer for day labels column
+  weeks.forEach((_, i) => {
+    html += `<div class="heatmap-month-label">${monthLabels[i]}</div>`;
+  });
+  html += "</div>";
+
+  // Main grid
+  html += '<div class="heatmap-body">';
+  html += '<div class="heatmap-labels">';
+  dayLabels.forEach((l) => (html += `<div class="heatmap-label">${l}</div>`));
+  html += "</div>";
+  html += '<div class="heatmap-weeks">';
+
+  // Compute volume only for dates visible in the heatmap
+  const visibleDates = new Set(weeks.flat().map((d) => d.toLocaleDateString("en-CA")));
+  const volumeByDate = {};
+  let maxVolume = 0;
+  Object.entries(workoutsByDate).forEach(([date, workouts]) => {
+    if (!visibleDates.has(date)) return;
+    const vol = workouts.reduce(
+      (sum, w) => sum + (w.exercises || []).reduce((s, ex) => s + ex.weight * ex.sets * ex.reps, 0),
+      0
+    );
+    volumeByDate[date] = vol;
+    if (vol > maxVolume) maxVolume = vol;
+  });
+
+  weeks.forEach((cells) => {
+    html += '<div class="heatmap-week">';
+    cells.forEach((cellDate) => {
+      const dateStr = cellDate.toLocaleDateString("en-CA");
+      const workouts = workoutsByDate[dateStr];
+      if (workouts) {
+        // Scale color from dark green (low volume) to bright green (high volume)
+        const vol = volumeByDate[dateStr] || 0;
+        const t = maxVolume > 0 ? vol / maxVolume : 1;
+        // Interpolate: #071a0e (low) -> #6ff5a0 (high)
+        const r = Math.round(7 + t * (111 - 7));
+        const g = Math.round(26 + t * (245 - 26));
+        const b = Math.round(14 + t * (160 - 14));
+        html += `<div class="heatmap-cell active" data-date="${dateStr}" style="background:rgb(${r},${g},${b})"></div>`;
+      } else {
+        html += `<div class="heatmap-cell"></div>`;
+      }
+    });
+    html += "</div>";
+  });
+
+  html += "</div></div></div>";
+
+  // Tooltip element
+  html += '<div id="heatmap-tooltip" class="heatmap-tooltip"></div>';
+
+  container.innerHTML = html;
+
+  // Tooltip event listeners
+  const tooltip = container.querySelector("#heatmap-tooltip");
+  container.querySelectorAll(".heatmap-cell.active").forEach((cell) => {
+    cell.addEventListener("mouseenter", (e) => {
+      const dateStr = cell.dataset.date;
+      tooltip.innerHTML = `<strong>${formatDate(dateStr)}</strong>`;
+      tooltip.classList.add("visible");
+
+      const rect = cell.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      tooltip.style.left = (rect.left - containerRect.left + rect.width / 2) + "px";
+      tooltip.style.top = (rect.top - containerRect.top - 8) + "px";
+    });
+    cell.addEventListener("mouseleave", () => {
+      tooltip.classList.remove("visible");
+    });
+  });
+}
+
 
 // ===== Plate Calculator =====
 const BAR_WEIGHT = 45;

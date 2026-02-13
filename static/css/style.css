@@ -288,6 +288,76 @@ header h1 { font-size: 1.25rem; font-weight: 700; }
   margin-top: 4px;
 }
 
+/* ===== History Charts ===== */
+#history-charts:empty { display: none; }
+.chart-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+}
+.chart-card h3 {
+  font-size: 0.85rem; font-weight: 600; margin-bottom: 10px;
+  color: var(--text-muted);
+}
+.chart-card canvas { width: 100% !important; max-height: 220px; }
+
+/* Calendar heatmap */
+.heatmap-container { overflow: visible; position: relative; }
+.heatmap-grid { display: flex; flex-direction: column; gap: 2px; }
+.heatmap-month-row {
+  display: flex; gap: 2px;
+}
+.heatmap-month-label {
+  width: 14px; font-size: 0.6rem; color: var(--text-muted);
+  text-align: center; flex-shrink: 0;
+}
+.heatmap-body { display: flex; gap: 2px; }
+.heatmap-labels {
+  display: flex; flex-direction: column; gap: 2px;
+  padding-right: 4px; flex-shrink: 0;
+}
+.heatmap-label {
+  width: 24px; height: 14px; font-size: 0.6rem;
+  color: var(--text-muted); display: flex; align-items: center;
+}
+.heatmap-weeks { display: flex; gap: 2px; }
+.heatmap-week { display: flex; flex-direction: column; gap: 2px; }
+.heatmap-cell {
+  width: 14px; height: 14px; border-radius: 3px;
+  background: var(--surface-hover);
+}
+.heatmap-cell.active { background: #4ade80; cursor: pointer; }
+
+/* Heatmap tooltip */
+.heatmap-tooltip {
+  display: none; position: absolute; z-index: 10;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 6px 10px;
+  box-shadow: var(--shadow); pointer-events: none;
+  transform: translate(-50%, -100%); white-space: nowrap;
+}
+.heatmap-tooltip.visible { display: block; }
+.heatmap-tooltip strong {
+  font-size: 0.75rem; color: var(--text);
+}
+
+/* Personal Records */
+.pr-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+}
+.pr-card h3 {
+  font-size: 0.85rem; font-weight: 600; margin-bottom: 10px;
+  color: var(--text-muted);
+}
+.pr-list { display: flex; flex-direction: column; gap: 6px; }
+.pr-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.85rem;
+}
+.pr-name { flex: 1; font-weight: 500; color: var(--text); }
+.pr-value { font-weight: 700; color: var(--primary); }
+.pr-date { font-size: 0.75rem; color: var(--text-muted); }
+
 /* ===== Responsive ===== */
 @media (max-width: 360px) {
   .weight-display { font-size: 1.4rem; }
