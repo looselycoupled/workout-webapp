@@ -5,7 +5,7 @@ let timerState = {
   mode: "countdown", // "countdown" | "stopwatch"
   running: false,
   seconds: 0,
-  countdownFrom: 180, // default 3 min
+  countdownFrom: 90, // default 1:30
   interval: null,
   alertPlayed: false,
   overtime: false, // countdown expired, now counting up
@@ -180,7 +180,7 @@ function renderActiveWorkout() {
   });
 
   html += `
-    <div style="margin-top: 20px; display: flex; gap: 8px;">
+    <div style="margin-top: 20px; margin-bottom: 80px; display: flex; gap: 8px;">
       <button class="btn btn-danger btn-block" onclick="cancelWorkout()">Cancel</button>
       <button class="btn btn-success btn-block" onclick="finishWorkout()">Finish Workout</button>
     </div>
