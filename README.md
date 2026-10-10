@@ -2,6 +2,12 @@
 
 A self-hosted PWA for tracking weightlifting workouts. Built for compound lifts with plate loading visualization, warmup calculations, and rest timers.
 
+| Exercises | Workout | History |
+|:---:|:---:|:---:|
+| ![Exercise list with current weights, warmups, and plate loading](docs/screenshots/exercises.png) | ![Active workout with set tracker and rest timer](docs/screenshots/workout.png) | ![Weight progression chart and workout frequency heatmap](docs/screenshots/history.png) |
+
+<sub>Screenshots use sample data.</sub>
+
 ## Features
 
 - **Exercise tracking** — Log sets/reps/weight for each exercise with automatic progression (±5 lb increments)
