@@ -1,12 +1,28 @@
 import json
 import os
+import threading
 from datetime import datetime, date
+from functools import wraps
 from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
 DATA_DIR = os.environ.get("DATA_DIR", os.path.join(os.path.dirname(__file__), "data"))
 DATA_FILE = os.path.join(DATA_DIR, "workouts.json")
+
+# Every write is load -> modify -> save on the whole file. Without a lock, two
+# overlapping requests both load the old file and the second save silently
+# drops the first one's change. This only covers threads in one process, which
+# is why the Dockerfile runs a single gunicorn worker.
+_data_lock = threading.Lock()
+
+
+def with_data_lock(view):
+    @wraps(view)
+    def wrapper(*args, **kwargs):
+        with _data_lock:
+            return view(*args, **kwargs)
+    return wrapper
 
 
 def load_data():
@@ -18,8 +34,12 @@ def load_data():
 
 def save_data(data):
     os.makedirs(DATA_DIR, exist_ok=True)
-    with open(DATA_FILE, "w") as f:
+    # Write to a temp file and swap it in, so a concurrent read never sees a
+    # half-written file.
+    tmp_path = DATA_FILE + ".tmp"
+    with open(tmp_path, "w") as f:
         json.dump(data, f, indent=2)
+    os.replace(tmp_path, DATA_FILE)
 
 
 def get_default_data():
@@ -65,6 +85,7 @@ def api_data():
 
 
 @app.route("/api/exercise/<name>/increment", methods=["POST"])
+@with_data_lock
 def increment_weight(name):
     data = load_data()
     if name not in data["exercises"]:
@@ -79,6 +100,7 @@ def increment_weight(name):
 
 
 @app.route("/api/exercise/<name>/decrement", methods=["POST"])
+@with_data_lock
 def decrement_weight(name):
     data = load_data()
     if name not in data["exercises"]:
@@ -91,6 +113,7 @@ def decrement_weight(name):
 
 
 @app.route("/api/exercise/<name>/weight", methods=["PUT"])
+@with_data_lock
 def set_weight(name):
     data = load_data()
     if name not in data["exercises"]:
@@ -105,6 +128,7 @@ def set_weight(name):
 
 
 @app.route("/api/workout", methods=["POST"])
+@with_data_lock
 def log_workout():
     data = load_data()
     body = request.get_json()
@@ -127,6 +151,7 @@ def get_history():
 
 
 @app.route("/api/exercise", methods=["POST"])
+@with_data_lock
 def add_exercise():
     data = load_data()
     body = request.get_json()
@@ -149,6 +174,7 @@ def add_exercise():
 
 
 @app.route("/api/exercise/<name>", methods=["DELETE"])
+@with_data_lock
 def delete_exercise(name):
     data = load_data()
     if name not in data["exercises"]:
