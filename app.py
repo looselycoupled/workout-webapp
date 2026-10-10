@@ -54,6 +54,11 @@ def index():
     return render_template("index.html", data=data)
 
 
+@app.route("/healthz")
+def healthz():
+    return jsonify({"status": "ok"})
+
+
 @app.route("/api/data")
 def api_data():
     return jsonify(load_data())

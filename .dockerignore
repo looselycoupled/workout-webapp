@@ -1,5 +1,11 @@
 __pycache__
 *.pyc
 .git
+.github
 .gitignore
+.claude
+.DS_Store
+**/.DS_Store
 *.md
+docker-compose.yml
+data/

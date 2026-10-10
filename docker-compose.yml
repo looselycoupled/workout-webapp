@@ -1,6 +1,7 @@
 services:
   workout-app:
-    build: .
+    image: ghcr.io/looselycoupled/workout-webapp:latest
+    ## To build from source instead, replace the image line with: build: .
     container_name: workout-tracker
     ports:
       - "8080:5000"

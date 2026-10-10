@@ -20,10 +20,10 @@ A self-hosted PWA for tracking weightlifting workouts. Built for compound lifts 
 ## Quick Start
 
 ```bash
-docker-compose up --build
+docker compose up -d
 ```
 
-App runs at `http://localhost:8080`. Data persists via Docker volume.
+Pulls the prebuilt image from `ghcr.io/looselycoupled/workout-webapp` (amd64 and arm64, rebuilt on every push to `main`). App runs at `http://localhost:8080`. Data persists in `./data` via a bind mount.
 
 ### Manual
 
